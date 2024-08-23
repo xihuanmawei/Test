@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xihuanmawei.mapper.OrderMapper">
+    <select id="getEveryDept" resultType="map">
+        SELECT
+            COALESCE(d.dept_name, 'Unknown') AS dept_name,
+            COUNT(o.handle_dept_id) AS total,
+            SUM(CASE WHEN o.is_overdue = 1 THEN 1 ELSE 0 END) AS overtotal,
+            ROUND(SUM(CASE WHEN o.is_overdue = 1 THEN 1 ELSE 0 END) * 1.0 / COUNT(o.id), 2) AS over_rate
+        FROM
+            order_info o
+                LEFT JOIN dept_info d ON o.handle_dept_id = d.dept_id
+        WHERE
+            DATE_FORMAT(o.create_time, '%Y-%m') = #{yearMonth}
+        GROUP BY
+            d.dept_name;
+    </select>
+
+    <select id="getEveryType" resultType="map">
+        SELECT
+            o.order_type AS orderType,
+            COUNT(o.handle_dept_id) AS total,
+            SUM(CASE WHEN o.is_overdue = 1 THEN 1 ELSE 0 END) AS overtotal,
+            ROUND(SUM(CASE WHEN o.is_overdue = 1 THEN 1 ELSE 0 END) * 1.0 / COUNT(o.id), 2) AS over_rate
+        FROM
+            order_info o
+                LEFT JOIN dept_info d ON o.handle_dept_id = d.dept_id
+        WHERE
+            DATE_FORMAT(o.create_time, '%Y-%m') = #{yearMonth}
+        GROUP BY
+            o.order_type;
+    </select>
+
+</mapper>
